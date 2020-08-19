@@ -89,7 +89,63 @@ coordRes = spyrCoords(5,:);
 % spyrCoords = [coordPosX; coordPosY; coordScale; coordOri; coordRes];
 
 
+clf;
 
+filterMatrix = [];
+filterSupportMatrix = [];
+
+fDimA = [0 45 90 135];
+fDimB = [90 45 0 135];
+
+fCount = 0;
+filterCoordA = nan(1,numel(fDimA)*numel(fDimB));
+filterCoordB = nan(1,numel(fDimA)*numel(fDimB));
+for i = 1:length(fDimA)
+    for j = 1:length(fDimB);
+        fCount = fCount + 1;
+        filterCoordA(fCount) = fDimA(i);
+        filterCoordB(fCount) = fDimB(j);
+
+        %where the derivative is to be evaluated
+        gMu = [32 32 2 fDimB(j)];
+
+        %direction of the derivative, normalized;
+        gDirection = [cos(deg2rad(fDimA(i))) sin(deg2rad(fDimA(i))) 0 0];
+        gDirection = gDirection / norm(gDirection);
+
+        %std weights off/on direction vector
+        gScale = .01;
+        freq = 2;
+        sigma(1) = gScale';
+        sigma(2:4) = 0.2*gScale' * [1 1 1];
+
+        %'size' of each dimension
+        dimScale = ([N, N, 5, -180]);
+
+        d = V2DerivFilter(spyrCoords, gMu, gDirection, dimScale, sigma, freq);
+        filterMatrix(fCount,:) = d.op;
+        filterSupportMatrix(fCount,:) = d.window;
+    end
+end
+
+
+%% shuffle matrices
+filterShuffleMatrix = filterMatrix;
+for i = 1:size(filterMatrix,1)
+    w = filterSupportMatrix(i,:);
+    f = filterMatrix(i,:);
+    fs = f(w>0);
+    filterShuffleMatrix(i,w>0) = fs(randperm(length(fs)));
+end
+
+%% multiply filter matrix with data matrix
+responseNormal = spyrDataMatrix * filterMatrix';
+responseShuffle = spyrDataMatrix * filterShuffleMatrix';
+
+%normalize by global response maximum
+grm = max([responseNormal(:); responseShuffle(:)]);
+responseNormal = responseNormal / grm;
+responseShuffle = responseShuffle / grm;
 
 
 

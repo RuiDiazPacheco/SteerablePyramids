@@ -3,10 +3,8 @@ clear all;
 clc;
 
 %init important parameters
-%addpath('C:\Users\oleskiw\Google Drive\wrx\Program\Toolbox\matlabPyrTools');
-addpath('/arc/1.2/p3/ruidiazp/Documents/MATLAB/matlabPyrTools2/PyrTools/V2DerivFilterSparsity');
-
-%addpath('C:\Users\oleskiw\Google Drive\wrx\Program\Toolbox\matlabPyrTools\MEX')
+addpath('C:\Users\oleskiw\Google Drive\wrx\Program\Toolbox\matlabPyrTools');
+addpath('C:\Users\oleskiw\Google Drive\wrx\Program\Toolbox\matlabPyrTools\MEX')
 
 S = 4;
 O = 4;
@@ -14,13 +12,12 @@ N = 64;
 
 M = 2^11;
 
-%%
-FLAG_SCRAMBLE_IMAGE = 1;
+FLAG_SCRAMBLE_IMAGE = false;
 
 %%
 
 %demo pyramid
-imgFull = imread('./testImages/bark01.jpg');
+imgFull = imread('.\testImages\bark01.jpg');
 imgFull = hsv2rgb(rgb2hsv(imgFull).*repmat(reshape([1,0,1],[1 1 3]), [size(imgFull,1) size(imgFull,2), 1]));
 imgFull = squeeze(imgFull(:,:,1));
 if FLAG_SCRAMBLE_IMAGE
